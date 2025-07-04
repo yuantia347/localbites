@@ -240,9 +240,12 @@ export const deleteResepPrivate = async (id) => {
   }
 };
 
+/**
+ * Ambil semua data rekomendasi sosmed (public)
+ */
 export const getAllRekomendasi = async () => {
   try {
-    const res = await fetch(REACT_APP_API_URL + "/api/v1/rekomendasi/read");
+    const res = await fetch(REACT_APP_API_URL + "/api/v1/sosmed/read");
     if (!res.ok) throw new Error("Gagal ambil rekomendasi");
     const result = await res.json();
     return result.data || [];
@@ -252,16 +255,19 @@ export const getAllRekomendasi = async () => {
   }
 };
 
-export const createRekomendasi = async (data) => {
+/**
+ * Tambah rekomendasi sosmed (private, pakai FormData)
+ */
+export const createRekomendasi = async (formData) => {
   try {
     const token = await jwtStorage.retrieveToken();
-    const res = await fetch(REACT_APP_API_URL + "/api/v1/rekomendasi/create", {
+    const res = await fetch(REACT_APP_API_URL + "/api/v1/sosmed/create", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        // ❗ Jangan set Content-Type di sini, biarkan browser mengatur multipart/form-data
       },
-      body: JSON.stringify(data),
+      body: formData,
     });
 
     return await res.json();
@@ -271,16 +277,19 @@ export const createRekomendasi = async (data) => {
   }
 };
 
-export const updateRekomendasi = async (id, data) => {
+/**
+ * Update rekomendasi sosmed (private, pakai FormData)
+ */
+export const updateRekomendasi = async (id, formData) => {
   try {
     const token = await jwtStorage.retrieveToken();
-    const res = await fetch(`${REACT_APP_API_URL}/api/v1/rekomendasi/update/${id}`, {
+    const res = await fetch(`${REACT_APP_API_URL}/api/v1/sosmed/update/${id}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        // ❗ Jangan pakai Content-Type manual di sini juga
       },
-      body: JSON.stringify(data),
+      body: formData,
     });
 
     return await res.json();
@@ -290,10 +299,13 @@ export const updateRekomendasi = async (id, data) => {
   }
 };
 
+/**
+ * Hapus rekomendasi sosmed (private)
+ */
 export const deleteRekomendasi = async (id) => {
   try {
     const token = await jwtStorage.retrieveToken();
-    const res = await fetch(`${REACT_APP_API_URL}/api/v1/rekomendasi/delete/${id}`, {
+    const res = await fetch(`${REACT_APP_API_URL}/api/v1/sosmed/delete/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -309,4 +321,6 @@ export const deleteRekomendasi = async (id) => {
     return { status: "error", message: "Gagal menghapus data" };
   }
 };
+
+
 

@@ -1,44 +1,254 @@
-.rekomendasi-container {
-  padding: 20px;
-  background: #fff;
-  border-radius: 15px;
-  max-width: 600px;
-  margin: 30px auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+* {
+  font-family: 'Poppins', sans-serif;
 }
 
-.form-rekomendasi {
+/* Container utama */
+.rekomendasi-bg {
+  background-color: #f2f2f2;
+  border-radius: 25px;
+  padding: 30px;
+  margin: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.judul-rekomendasi {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.highlight-orange {
+  color: #ff8c00;
+}
+
+.highlight-black {
+  color: #333;
+}
+
+
+.rekomendasi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.card-rekomendasi {
+  background-color: transparent;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.card-rekomendasi:hover {
+  transform: scale(1.02);
+}
+
+/* Thumbnail dan overlay */
+.thumbnail-wrapper {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 180px;
+}
+
+.thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 16px;
+}
+
+.thumbnail-overlay {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(174, 212, 203, 0.459);
+  border-radius: 0 0 12px 12px;
 }
 
-.form-rekomendasi input,
-.form-rekomendasi button {
-  padding: 10px;
-  font-size: 16px;
+.judul-thumbnail {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.rekomendasi-list {
+.thumbnail-play {
+  background-color: #ff5722;
+  color: white;
+  border-radius: 50%;
+  padding: 12px;
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  margin-left: 8px;
 }
 
-.rekomendasi-card {
-  background: #f7f7f7;
-  padding: 15px;
-  border-radius: 10px;
-}
-
-.card-buttons {
-  margin-top: 10px;
+/* Edit dan delete button */
+.thumbnail-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
-.card-buttons button {
-  padding: 5px 10px;
+.thumbnail-actions .btn-edit,
+.thumbnail-actions .btn-delete {
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
   font-size: 14px;
+  color: white;
+  cursor: pointer;
+}
+
+.thumbnail-actions .btn-edit {
+  background-color: #39c1b6;
+}
+
+.thumbnail-actions .btn-delete {
+  background-color: #39c1b6;
+}
+
+.thumbnail-actions .btn-edit:hover {
+  background-color: #75d124;
+}
+
+.thumbnail-actions .btn-delete:hover {
+  background-color: #c62828;
+}
+
+/* Deskripsi bawah */
+.info-wrapper {
+  background-color: rgba(255, 233, 177, 0.9);
+  margin-top: 10px;
+  padding: 15px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.info-wrapper p {
+  color: #333;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+/* Tombol tambah */
+.add-button {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background-color: #ff8c00;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.add-button:hover {
+  background-color: #e67600;
+}
+
+/* Form overlay */
+.form-overlay-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 998;
+}
+
+.form-rekomendasi-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 400px;
+  height: 100%;
+  background-color: #ffffff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+  border-radius: 12px 0 0 12px;
+}
+
+.form-rekomendasi-container {
+  padding: 25px;
+  position: relative;
+}
+
+.close-rekomendasi-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  border: none;
+  background: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.3s ease;
+}
+
+.close-rekomendasi-button:hover {
+  color: #333;
+}
+
+.form-rekomendasi-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-rekomendasi-container label {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.form-rekomendasi-container input,
+.form-rekomendasi-container textarea {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.btn-submit {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #ff8c00;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #e67600;
 }
