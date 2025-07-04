@@ -322,5 +322,84 @@ export const deleteRekomendasi = async (id) => {
   }
 };
 
+export const getAllUsaha = async () => {
+  try {
+    const token = await jwtStorage.retrieveToken();
+    const res = await fetch(REACT_APP_API_URL + "/api/v1/usaha/read", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
+    if (!res.ok) throw new Error("Gagal ambil data usaha kuliner");
 
+    const result = await res.json();
+    return result.data || [];
+  } catch (err) {
+    console.error("Error fetching usaha kuliner:", err);
+    return [];
+  }
+};
+
+export const createUsaha = async (formData) => {
+  try {
+    const token = await jwtStorage.retrieveToken();
+    const res = await fetch(REACT_APP_API_URL + "/api/v1/usaha/create", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData instanceof FormData ? formData : convertToFormData(formData),
+    });
+
+    return await res.json();
+  } catch (err) {
+    console.error("Create usaha error:", err);
+    return { status: "error", message: err.message };
+  }
+};
+
+export const updateUsaha = async (id, data) => {
+  try {
+    const token = await jwtStorage.retrieveToken();
+    const res = await fetch(`${REACT_APP_API_URL}/api/v1/usaha/update/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    return await res.json();
+  } catch (err) {
+    console.error("Update usaha error:", err);
+    return { status: "error", message: err.message };
+  }
+};
+
+export const deleteUsaha = async (id) => {
+  try {
+    const token = await jwtStorage.retrieveToken();
+    const res = await fetch(`${REACT_APP_API_URL}/api/v1/usaha/delete/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const contentType = res.headers.get("Content-Type");
+    return contentType && contentType.includes("application/json")
+      ? res.json()
+      : { status: "error", message: "Server tidak mengembalikan JSON." };
+  } catch (err) {
+    console.error("Delete usaha error:", err);
+    return { status: "error", message: "Gagal menghapus data" };
+  }
+};
+
+const convertToFormData = (obj) => {
+  const formData = new FormData();
+  Object.entries(obj).forEach(([key, val]) => formData.append(key, val));
+  return formData;
+};
