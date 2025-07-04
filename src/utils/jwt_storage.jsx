@@ -19,6 +19,8 @@ export const jwtStorage = {
     }
   },
 
+  
+
   async retrieveToken() {
     try {
       const token = await storage.getItem(token_auth);

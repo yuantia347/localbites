@@ -1,7 +1,6 @@
-/* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, Popconfirm } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FileImageOutlined,
   ShoppingCartOutlined,
@@ -10,11 +9,19 @@ import {
   BookOutlined,
   HomeOutlined,
 } from "@ant-design/icons";
-import "./sidenav.css"; // Import CSS
+import "./sidenav.css";
 
 function Sidenav() {
-  const [selectedKey, setSelectedKey] = useState("/beranda");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Set default key berdasarkan URL saat ini
+  const [selectedKey, setSelectedKey] = useState(location.pathname);
+
+  // Update selectedKey saat location.pathname berubah
+  useEffect(() => {
+    setSelectedKey(location.pathname);
+  }, [location.pathname]);
 
   const handleMenuClick = (key) => {
     if (key === "/authentication") {
@@ -37,7 +44,7 @@ function Sidenav() {
       label: (
         <Popconfirm
           title="Apakah Anda yakin ingin keluar?"
-          onConfirm={() => handleMenuClick("/authentication")}
+          onConfirm={() => handleMenuClick("/")}
           okText="Ya"
           cancelText="Batal"
         >
@@ -75,7 +82,6 @@ function Sidenav() {
     <>
       <div className="brand">
         <img src="/LocalBites.png" alt="LocalBites Logo" className="brand-logo" />
-        <span className="brand-text">LocalBites</span>
       </div>
       <hr />
       <Menu

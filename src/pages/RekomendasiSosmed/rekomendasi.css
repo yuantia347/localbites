@@ -1,0 +1,44 @@
+.rekomendasi-container {
+  padding: 20px;
+  background: #fff;
+  border-radius: 15px;
+  max-width: 600px;
+  margin: 30px auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.form-rekomendasi {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-direction: column;
+}
+
+.form-rekomendasi input,
+.form-rekomendasi button {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.rekomendasi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.rekomendasi-card {
+  background: #f7f7f7;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.card-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.card-buttons button {
+  padding: 5px 10px;
+  font-size: 14px;
+}

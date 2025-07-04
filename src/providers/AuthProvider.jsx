@@ -2,6 +2,8 @@ import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { getDataPrivate, logoutAPI } from "../utils/api";
 import { jwtStorage } from "../utils/jwt_storage";
+import { jwtDecode } from "jwt-decode";
+
 
 export const AuthContext = createContext(null);
 
@@ -17,7 +19,7 @@ const AuthProvider = ({ children }) => {
       .then((resp) => {
         setIsLoadingScreen(false);
         if (resp?.user_logged) {
-          setUserProfile(resp);
+          setUserProfile((prev) => ({ ...prev, ...resp }));
           setIsLoggedIn(true);
         } else {
           jwtStorage.removeItem();
@@ -35,6 +37,11 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     jwtStorage.retrieveToken().then((token) => {
       if (token) {
+        const decoded = jwtDecode(token);
+        setUserProfile((prev) => ({
+          ...prev,
+          id_users: decoded.sub, // simpan id_users dari token
+        }));
         getDataProfile();
       } else {
         setIsLoadingScreen(false);
@@ -44,8 +51,10 @@ const AuthProvider = ({ children }) => {
 
   const login = (access_token) => {
     jwtStorage.storeToken(access_token);
+    const decoded = jwtDecode(access_token);
+    setUserProfile({ id_users: decoded.sub }); // simpan saat login
     getDataProfile();
-    navigate("/dashboard", { replace: true });
+    navigate("/beranda", { replace: true });
   };
 
   const logout = () => {
@@ -54,12 +63,14 @@ const AuthProvider = ({ children }) => {
         if (resp?.isLoggedOut) {
           jwtStorage.removeItem();
           setIsLoggedIn(false);
+          setUserProfile({});
           navigate("/login", { replace: true });
         }
       })
       .catch((err) => {
         jwtStorage.removeItem();
         setIsLoggedIn(false);
+        setUserProfile({});
         navigate("/login", { replace: true });
         console.log(err);
       });

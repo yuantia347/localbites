@@ -1,11 +1,17 @@
 .beranda-container {
   background-image: linear-gradient(to right, #e2e2e2, #FFE9B1);
   border-radius: 20px;
-  margin-top: 20px;
-  padding: 40px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  min-height: calc(100vh - 40px); 
+  margin: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
+
 
 /* === ANIMATIONS === */
 @keyframes slideInLeft {
@@ -67,6 +73,7 @@
 
 /* === KIRI (Text) === */
 .beranda-left {
+  margin-left: 50px;
   padding-right: 35px;
 }
 
@@ -170,14 +177,14 @@
 }
 
 .orders {
-  top: 0;
-  right: -10%;
+  top: -10%;
+  right: 0%;
   animation: slideInRight 0.8s ease-out;
 }
 
 .foodies {
   bottom: 0;
-  right: -5%;
+  right: 0%;
   animation: slideInBottom 0.8s ease-out;
 }
 
