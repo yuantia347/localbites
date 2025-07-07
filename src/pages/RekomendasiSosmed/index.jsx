@@ -1,43 +1,42 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; 
 import {
   getAllRekomendasi,
   createRekomendasi,
   updateRekomendasi,
   deleteRekomendasi,
+  addToFavorit,
+  removeFromFavorit,
+  getAllFavorit,
 } from "../../utils/api";
+import { faBurger } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCirclePlay, faTimes } from "@fortawesome/free-solid-svg-icons";
 import {
-  faCirclePlay,
-  faTrash,
-  faEdit,
-  faPlus,
-  faTimes,
-} from "@fortawesome/free-solid-svg-icons";
-import { notification, Modal } from "antd";
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import { notification, Modal, Input } from "antd";
 import "./rekomendasi.css";
 
 const getThumbnailFromLink = (url) => {
-  try {
-    const youtubeQueryMatch = url.match(/[?&]v=([^&#]+)/);
-    const youtubeShortLinkMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-    const videoId = youtubeQueryMatch?.[1] || youtubeShortLinkMatch?.[1];
-    if (videoId) {
-      return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-    }
-    return "https://via.placeholder.com/320x180.png?text=Thumbnail";
-  } catch {
-    return "https://via.placeholder.com/320x180.png?text=Thumbnail";
-  }
+  return "";
 };
 
 const RekomendasiSosmed = () => {
   const [data, setData] = useState([]);
+  const [likedItems, setLikedItems] = useState({});
   const [formVisible, setFormVisible] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     judul: "",
     deskripsi: "",
     link: "",
+    kategori: "",
     thumbnail_url: "",
   });
 
@@ -45,9 +44,68 @@ const RekomendasiSosmed = () => {
     fetchRekomendasi();
   }, []);
 
+  useEffect(() => {
+    if (formVisible) {
+      document.body.classList.add("disable-scroll");
+    } else {
+      document.body.classList.remove("disable-scroll");
+    }
+    return () => document.body.classList.remove("disable-scroll");
+  }, [formVisible]);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      loadFavoritStatus();
+    }
+  }, [data]);
+
   const fetchRekomendasi = async () => {
     const result = await getAllRekomendasi();
     setData(result);
+  };
+
+  const loadFavoritStatus = async () => {
+    try {
+      const favoritRes = await getAllFavorit();
+      const favoritData = favoritRes?.data || [];
+
+      const newLikes = {};
+      data.forEach((item, index) => {
+        const isFavorited = favoritData.some(
+          (fav) =>
+            fav.tipe_favorit === "rekomendasi_sosmed" &&
+            fav.item_id === item.id_sosmed
+        );
+        newLikes[index] = isFavorited;
+      });
+      setLikedItems(newLikes);
+    } catch (err) {
+      console.error("Gagal ambil data favorit:", err);
+    }
+  };
+
+  const toggleLove = async (index, item) => {
+    const isLiked = likedItems[index];
+
+    const updatedLikes = { ...likedItems, [index]: !isLiked };
+    setLikedItems(updatedLikes);
+
+    try {
+      if (isLiked) {
+        const res = await removeFromFavorit("rekomendasi_sosmed", item.id_sosmed);
+        if (res.status !== "success") {
+          notification.error({ message: "Gagal menghapus dari favorit" });
+        }
+      } else {
+        const res = await addToFavorit("rekomendasi_sosmed", item.id_sosmed);
+        if (res.status !== "success") {
+          notification.error({ message: "Gagal menambahkan ke favorit" });
+        }
+      }
+    } catch (err) {
+      console.error("toggleLove error:", err);
+      notification.error({ message: "Terjadi kesalahan saat update favorit" });
+    }
   };
 
   const handleFormChange = (e) => {
@@ -55,7 +113,22 @@ const RekomendasiSosmed = () => {
     const updatedData = { ...formData, [name]: value };
 
     if (name === "link") {
-      updatedData.thumbnail_url = getThumbnailFromLink(value);
+      if (value.includes("tiktok.com")) {
+        updatedData.kategori = "TikTok";
+        updatedData.thumbnail_url =
+          "https://i.pinimg.com/736x/22/59/e0/2259e038973dceafa59fb513cb3e0664.jpg";
+      } else if (value.includes("instagram.com")) {
+        updatedData.kategori = "Instagram";
+        updatedData.thumbnail_url =
+          "https://i.pinimg.com/736x/da/20/46/da2046dd48a3b00d16da8e8528e1595b.jpg";
+      } else if (value.includes("x.com") || value.includes("twitter.com")) {
+        updatedData.kategori = "X";
+        updatedData.thumbnail_url =
+          "https://i.pinimg.com/736x/58/f1/c2/58f1c2be2284a9dea8b69f68764bed22.jpg";
+      } else {
+        updatedData.kategori = "";
+        updatedData.thumbnail_url = getThumbnailFromLink(value);
+      }
     }
 
     setFormData(updatedData);
@@ -76,30 +149,44 @@ const RekomendasiSosmed = () => {
     formBody.append("judul", formData.judul);
     formBody.append("link", formData.link);
     formBody.append("deskripsi", formData.deskripsi);
-    formBody.append("thumbnail_url", formData.thumbnail_url);
-
-    let response;
-    if (editingId) {
-      response = await updateRekomendasi(editingId, formBody);
-    } else {
-      response = await createRekomendasi(formBody);
+    formBody.append("kategori", formData.kategori);
+    if (formData.thumbnail_url) {
+      formBody.append("thumbnail_url", formData.thumbnail_url);
     }
 
-    if (response.status === "success") {
+    try {
+      let response;
+      if (editingId) {
+        response = await updateRekomendasi(editingId, formBody);
+      } else {
+        response = await createRekomendasi(formBody);
+      }
+
+      if (!response || response.status !== "success") {
+        throw new Error(response?.message || "Terjadi kesalahan.");
+      }
+
       notification.success({
         message: "Sukses",
         description: editingId
           ? "Rekomendasi berhasil diupdate!"
           : "Rekomendasi berhasil ditambahkan!",
       });
+
       setFormVisible(false);
       setEditingId(null);
-      setFormData({ judul: "", deskripsi: "", link: "", thumbnail_url: "" });
+      setFormData({
+        judul: "",
+        deskripsi: "",
+        link: "",
+        kategori: "",
+        thumbnail_url: "",
+      });
       fetchRekomendasi();
-    } else {
+    } catch (error) {
       notification.error({
         message: "Gagal",
-        description: response.message || "Terjadi kesalahan.",
+        description: error.message,
       });
     }
   };
@@ -109,7 +196,8 @@ const RekomendasiSosmed = () => {
       judul: item.judul,
       deskripsi: item.deskripsi,
       link: item.link,
-      thumbnail_url: item.thumbnail_url,
+      kategori: item.kategori || "",
+      thumbnail_url: item.thumbnail_url || "",
     });
     setEditingId(item.id_sosmed);
     setFormVisible(true);
@@ -123,18 +211,20 @@ const RekomendasiSosmed = () => {
       okType: "danger",
       cancelText: "Batal",
       onOk: async () => {
-        const response = await deleteRekomendasi(id);
-        if (response.status === "success") {
+        try {
+          const response = await deleteRekomendasi(id);
+          if (!response || response.status !== "success") {
+            throw new Error(
+              response?.message || "Terjadi kesalahan saat menghapus."
+            );
+          }
           notification.success({
             message: "Sukses",
             description: "Rekomendasi berhasil dihapus.",
           });
           fetchRekomendasi();
-        } else {
-          notification.error({
-            message: "Gagal",
-            description: response.message || "Terjadi kesalahan.",
-          });
+        } catch (error) {
+          notification.error({ message: "Gagal", description: error.message });
         }
       },
     });
@@ -146,47 +236,95 @@ const RekomendasiSosmed = () => {
         <span className="highlight-black">Rekomendasi</span>{" "}
         <span className="highlight-orange">Sosial Media</span>
       </h2>
+      <p className="subjudul-rekomendasi">
+        Jelajahi makanan unik dan tempat favorit pilihan netizen dari konten sosial media terkini
+        <FontAwesomeIcon icon={faBurger} style={{ marginLeft: "8px", color: "#ff8c42" }} />
+      </p>
+
+      <div style={{ display: "flex", width: "100%", marginBottom: "30px" }}>
+        <Input
+          placeholder="Cari rekomendasi sosial media..."
+          allowClear
+          onChange={(e) => setSearchTerm(e.target.value)}
+          value={searchTerm}
+          style={{
+            flex: 1,
+            borderTopLeftRadius: 12,
+            borderBottomLeftRadius: 12,
+            borderRight: "none",
+            height: "50px",
+            textAlign: "center",
+            fontWeight: "500",
+          }}
+        />
+        <button
+          style={{
+            backgroundColor: "#ff8c42",
+            color: "#fff",
+            border: "none",
+            borderTopRightRadius: 12,
+            borderBottomRightRadius: 12,
+            padding: "0 20px",
+            height: "50px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          <SearchOutlined style={{ fontSize: "20px", color: "#fff" }} />
+        </button>
+      </div>
 
       <div className="rekomendasi-grid">
-        {data.map((item) => (
-          <div key={item.id_sosmed} className="card-rekomendasi">
-            <div className="thumbnail-wrapper">
-              <img
-                src={item.thumbnail_url}
-                alt={item.judul}
-                className="thumbnail-img"
-              />
-
-              <div className="thumbnail-overlay">
-                <h3 className="judul-thumbnail">{item.judul}</h3>
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="thumbnail-play"
-                >
-                  <FontAwesomeIcon icon={faCirclePlay} />
-                </a>
+        {data
+          .filter((item) =>
+            item.judul.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+          .map((item, index) => (
+            <div key={item.id_sosmed} className="card-rekomendasi">
+              <div className="thumbnail-wrapper">
+                <img
+                  src={item.thumbnail_url || "https://via.placeholder.com/300x200?text=No+Thumbnail"}
+                  className="thumbnail-img"
+                  alt="Thumbnail"
+                />
+                <div className="thumbnail-overlay">
+                  <div className="thumbnail-title-wrapper">
+                    <h3 className="judul-thumbnail">{item.judul}</h3>
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="thumbnail-play"
+                    >
+                      <FontAwesomeIcon icon={faCirclePlay} />
+                    </a>
+                  </div>
+                </div>
+                <div className="thumbnail-actions">
+                  <button className="btn-edit" onClick={() => handleEdit(item)}>
+                    <EditOutlined />
+                  </button>
+                  <button className="btn-delete" onClick={() => handleDelete(item.id_sosmed)}>
+                    <DeleteOutlined />
+                  </button>
+                </div>
               </div>
-
-              <div className="thumbnail-actions">
-                <button className="btn-edit" onClick={() => handleEdit(item)}>
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
+              <div className="info-wrapper">
                 <button
-                  className="btn-delete"
-                  onClick={() => handleDelete(item.id_sosmed)}
+                  className={`love-btn1 ${likedItems[index] ? "loved" : ""}`}
+                  onClick={() => toggleLove(index, item)}
                 >
-                  <FontAwesomeIcon icon={faTrash} />
+                  <FontAwesomeIcon
+                    icon={likedItems[index] ? solidHeart : regularHeart}
+                  />
                 </button>
+                <p>{item.deskripsi}</p>
               </div>
             </div>
-
-            <div className="info-wrapper">
-              <p>{item.deskripsi}</p>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       <button
@@ -198,11 +336,12 @@ const RekomendasiSosmed = () => {
             judul: "",
             deskripsi: "",
             link: "",
+            kategori: "",
             thumbnail_url: "",
           });
         }}
       >
-        <FontAwesomeIcon icon={faPlus} />
+        <PlusOutlined />
       </button>
 
       {formVisible && (
@@ -218,13 +357,14 @@ const RekomendasiSosmed = () => {
                     judul: "",
                     deskripsi: "",
                     link: "",
+                    kategori: "",
                     thumbnail_url: "",
                   });
                 }}
               >
                 <FontAwesomeIcon icon={faTimes} />
               </button>
-              <h2 className="form-title">
+              <h2 className="form-title-sosmed">
                 {editingId ? "Edit Rekomendasi" : "Tambah Rekomendasi"}
               </h2>
               <form onSubmit={handleSubmit}>
@@ -236,7 +376,6 @@ const RekomendasiSosmed = () => {
                   onChange={handleFormChange}
                   required
                 />
-
                 <label>Deskripsi</label>
                 <textarea
                   name="deskripsi"
@@ -244,8 +383,7 @@ const RekomendasiSosmed = () => {
                   onChange={handleFormChange}
                   rows={3}
                 />
-
-                <label>Link Video</label>
+                <label>Link Sosial Media</label>
                 <input
                   type="text"
                   name="link"
@@ -253,18 +391,11 @@ const RekomendasiSosmed = () => {
                   onChange={handleFormChange}
                   required
                 />
-
-                <label>Link Thumbnail</label>
-                <input
-                  type="text"
-                  name="thumbnail_url"
-                  value={formData.thumbnail_url}
-                  onChange={handleFormChange}
-                  readOnly
-                />
-
+                <p style={{ marginTop: "10px", fontSize: "0.9rem", color: "#666" }}>
+                  <strong>Kategori terdeteksi:</strong> {formData.kategori || "-"}
+                </p>
                 <button type="submit" className="btn-submit">
-                  {editingId ? "Update Rekomendasi" : "Simpan Rekomendasi"}
+                  {editingId ? "Simpan" : "Simpan"}
                 </button>
               </form>
             </div>

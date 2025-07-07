@@ -1,254 +1,308 @@
+/* Global Styling */
 * {
   font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* Container utama */
+body.lock-scroll {
+  overflow: hidden;
+}
+
+/* Background Container */
 .rekomendasi-bg {
-  background-color: #f2f2f2;
+  background-color: #fff;
   border-radius: 25px;
   padding: 30px;
-  margin: 20px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  margin: 20px 0;
 }
 
 .judul-rekomendasi {
   text-align: center;
-  font-size: 2rem;
-  font-weight: bold;
-  color: #333;
+  font-size: 28px;
   margin-bottom: 30px;
 }
 
-.highlight-orange {
-  color: #ff8c00;
+.subjudul-rekomendasi {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-top: -15px;
+  margin-bottom: 30px;
+  font-weight: 400;
 }
 
 .highlight-black {
-  color: #333;
+  color: #000;
 }
 
+.highlight-orange {
+  color: #ff8c42;
+}
 
 .rekomendasi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: start;
+  gap: 24px;
 }
 
 .card-rekomendasi {
-  background-color: transparent;
-  border-radius: 20px;
+  width: 200px;
   overflow: hidden;
-  position: relative;
+  display: flex;
+  flex-direction: column;
   transition: transform 0.3s ease;
+  position: relative;
+  animation: slideInLeft 0.6s ease forwards;
+  opacity: 0; /* supaya animasi terlihat */
 }
 
 .card-rekomendasi:hover {
-  transform: scale(1.02);
+  transform: translateY(-5px);
 }
 
-/* Thumbnail dan overlay */
 .thumbnail-wrapper {
   position: relative;
-  border-radius: 16px;
+  height: 250px;
   overflow: hidden;
-  height: 180px;
+  border-radius: 40px 40px 0 0; 
+  border: 2px solid black; 
 }
+
 
 .thumbnail-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-  border-radius: 16px;
 }
 
 .thumbnail-overlay {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
-  right: 8px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent); 
+  color: #fff;
+}
+
+
+.thumbnail-title-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background: rgba(174, 212, 203, 0.459);
-  border-radius: 0 0 12px 12px;
 }
 
 .judul-thumbnail {
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
   margin: 0;
-  flex: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  font-size: 18px;
+  color: #ffffff;
 }
 
 .thumbnail-play {
-  background-color: #ff5722;
+  font-size: 30px;
   color: white;
-  border-radius: 50%;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   text-decoration: none;
-  margin-left: 8px;
+  cursor: pointer;
+  margin-left: 2px;
 }
 
-/* Edit dan delete button */
+/* ✅ Tombol edit & delete bergaya podcast abu transparan */
 .thumbnail-actions {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   display: flex;
-  gap: 8px;
+  gap: 4px;
 }
 
-.thumbnail-actions .btn-edit,
-.thumbnail-actions .btn-delete {
-  border: none;
-  padding: 8px;
-  border-radius: 50%;
-  font-size: 14px;
-  color: white;
-  cursor: pointer;
+.btn-edit,
+.btn-delete {
+  background-color: rgba(128, 128, 128, 0.3) !important; /* abu transparan */
+  border: none !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  transition: background-color 0.3s ease !important;
 }
 
-.thumbnail-actions .btn-edit {
-  background-color: #39c1b6;
+.btn-edit:hover,
+.btn-delete:hover {
+  background-color: rgba(128, 128, 128, 0.5) !important;
 }
 
-.thumbnail-actions .btn-delete {
-  background-color: #39c1b6;
+.btn-edit .anticon,
+.btn-delete .anticon {
+  color: white !important;
+  font-size: 16px !important;
 }
 
-.thumbnail-actions .btn-edit:hover {
-  background-color: #75d124;
-}
 
-.thumbnail-actions .btn-delete:hover {
-  background-color: #c62828;
-}
-
-/* Deskripsi bawah */
 .info-wrapper {
-  background-color: rgba(255, 233, 177, 0.9);
-  margin-top: 10px;
-  padding: 15px;
-  border-radius: 20px;
-  text-align: center;
+  display: flex;
+  align-items: flex-start; /* sejajarkan ke atas */
+  gap: 10px; /* jarak antara love dan teks */
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border: 1px solid black;
+  border-radius: 0 0 40px 40px;
+  color: #444;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-.info-wrapper p {
-  color: #333;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-}
-
-/* Tombol tambah */
-.add-button {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  background-color: #ff8c00;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 24px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.info-content {
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.info-content p {
+  margin: 0;
+  font-weight: bold;
+}
+
+
+
+/* Add Button */
+.add-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #ff8c42;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  display: flex;
   justify-content: center;
-  z-index: 999;
+  align-items: center;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 998;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .add-button:hover {
-  background-color: #e67600;
+  background-color: #e07024;
 }
 
-/* Form overlay */
+/* Form Overlay Full Right */
 .form-overlay-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 998;
-}
-
-.form-rekomendasi-overlay {
   position: fixed;
   top: 0;
   right: 0;
   width: 100%;
-  max-width: 400px;
   height: 100%;
-  background-color: #ffffff;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
   z-index: 999;
-  overflow-y: auto;
-  transition: transform 0.3s ease-in-out;
-  border-radius: 12px 0 0 12px;
 }
 
-.form-rekomendasi-container {
-  padding: 25px;
-  position: relative;
+.form-rekomendasi-overlay {
+  background: white;
+  padding: 30px;
+  border-radius: 20px 0 0 20px;
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  overflow-y: auto;
 }
+body.disable-scroll {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+}
+
 
 .close-rekomendasi-button {
   position: absolute;
-  top: 10px;
-  right: 15px;
+  top: 25px;
+  right: 25px;
+  background: transparent;
   border: none;
-  background: none;
-  font-size: 22px;
+  font-size: 25px;
   cursor: pointer;
-  color: #999;
-  transition: color 0.3s ease;
+  color: #888;
 }
 
-.close-rekomendasi-button:hover {
-  color: #333;
+.form-title-sosmed {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 20px;
 }
 
-.form-rekomendasi-container form {
-  display: flex;
-  flex-direction: column;
+form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
 }
 
-.form-rekomendasi-container label {
-  margin-top: 12px;
-  margin-bottom: 4px;
-  font-weight: bold;
-}
-
-.form-rekomendasi-container input,
-.form-rekomendasi-container textarea {
+form input,
+form textarea {
+  width: 100%;
   padding: 10px;
-  font-size: 14px;
+  margin-top: 5px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 10px;
+  font-size: 14px;
 }
 
 .btn-submit {
   margin-top: 20px;
-  padding: 10px;
-  background-color: #ff8c00;
+  width: 100%;
+  padding: 12px;
+  background-color: #ff8c42;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .btn-submit:hover {
-  background-color: #e67600;
+  background-color: #e07024;
+}
+
+.love-btn1 {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ff4d4d;
+  transition: transform 0.2s;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  margin-top: 2px; 
+}
+
+.love-btn1:hover {
+  transform: scale(1.2);
+}
+
+.love-btn1.loved {
+  color: #ff0000;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }

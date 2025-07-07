@@ -403,3 +403,83 @@ const convertToFormData = (obj) => {
   Object.entries(obj).forEach(([key, val]) => formData.append(key, val));
   return formData;
 };
+
+/**
+ * Ambil semua data favorit milik user login (private)
+ */
+export const getAllFavorit = async () => {
+  try {
+    const token = await jwtStorage.retrieveToken();
+    const res = await fetch(`${REACT_APP_API_URL}/api/favorit`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.status === 401) return { isExpiredJWT: true };
+
+    return res.status >= 200 && res.status < 300 && res.status !== 204
+      ? await res.json()
+      : { status: "error", message: "Gagal ambil data favorit" };
+  } catch (err) {
+    console.error("getAllFavorit error:", err);
+    return { status: "error", message: err.message };
+  }
+};
+
+/**
+ * Tambah item ke daftar favorit (private)
+ * @param {string} tipe_favorit - Contoh: "resep_masakan"
+ * @param {number} item_id
+ */
+export const addToFavorit = async (tipe_favorit, item_id) => {
+  try {
+    const token = await jwtStorage.retrieveToken();
+    const res = await fetch(`${REACT_APP_API_URL}/api/favorit/create`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tipe_favorit,
+        item_id,
+      }),
+    });
+
+    if (res.status === 401) return { isExpiredJWT: true };
+    return await res.json();
+  } catch (err) {
+    console.error("addToFavorit error:", err);
+    return { status: "error", message: err.message };
+  }
+};
+
+/**
+ * Hapus item dari favorit (private)
+ * @param {string} tipe_favorit
+ * @param {number} item_id
+ */
+export const removeFromFavorit = async (tipe_favorit, item_id) => {
+  try {
+    const token = await jwtStorage.retrieveToken();
+    const res = await fetch(`${REACT_APP_API_URL}/api/favorit/delete`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tipe_favorit,
+        item_id,
+      }),
+    });
+
+    if (res.status === 401) return { isExpiredJWT: true };
+    return await res.json();
+  } catch (err) {
+    console.error("removeFromFavorit error:", err);
+    return { status: "error", message: err.message };
+  }
+};

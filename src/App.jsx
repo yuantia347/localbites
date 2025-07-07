@@ -16,33 +16,24 @@ import UsahaKuliner from "./pages/Usahakuliner";
 import AuthProvider, { AuthContext } from "./providers/AuthProvider";
 
 function AppRoutes() {
-  const { isLoggedIn, isLoadingScreen } = useContext(AuthContext);
-
-  if (isLoadingScreen) {
-    return <div>Loading...</div>; // atau bisa ganti dengan spinner/loading page
-  }
+  const { isLoggedIn } = useContext(AuthContext);
 
   return (
     <Routes>
-      {/* Public route */}
-      <Route path="/" element={<Authentication />} />
+      {/* Jika sudah login, akses "/" akan diarahkan ke "/beranda" */}
+      <Route path="/" element={isLoggedIn ? <Navigate to="/beranda" /> : <Authentication />} />
 
       {/* Protected Routes */}
       {isLoggedIn ? (
-        <>
-          <Route element={<MainLayout />}>
-            <Route path="/beranda" element={<Beranda />} />
-            <Route path="/usahakuliner" element={<UsahaKuliner />} />
-            <Route path="/rekomendasisosmed" element={<RekomendasiSosmed />} />
-            <Route path="/resepmasakan" element={<ResepMasakan />} />
-            <Route path="/favoritsaya" element={<FavoritSaya />} />
-          </Route>
-        </>
+        <Route element={<MainLayout />}>
+          <Route path="/beranda" element={<Beranda />} />
+          <Route path="/usahakuliner" element={<UsahaKuliner />} />
+          <Route path="/rekomendasisosmed" element={<RekomendasiSosmed />} />
+          <Route path="/resepmasakan" element={<ResepMasakan />} />
+          <Route path="/favoritsaya" element={<FavoritSaya />} />
+        </Route>
       ) : (
-        <>
-          {/* Kalau belum login dan coba akses route selain "/", redirect ke "/" */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </>
+        <Route path="*" element={<Navigate to="/" replace />} />
       )}
     </Routes>
   );

@@ -4,7 +4,6 @@ import { getDataPrivate, logoutAPI } from "../utils/api";
 import { jwtStorage } from "../utils/jwt_storage";
 import { jwtDecode } from "jwt-decode";
 
-
 export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
@@ -14,24 +13,24 @@ const AuthProvider = ({ children }) => {
 
   const navigate = useNavigate();
 
-  const getDataProfile = () => {
-    getDataPrivate("/api/v1/protected/data")
-      .then((resp) => {
-        setIsLoadingScreen(false);
-        if (resp?.user_logged) {
-          setUserProfile((prev) => ({ ...prev, ...resp }));
-          setIsLoggedIn(true);
-        } else {
-          jwtStorage.removeItem();
-          setIsLoggedIn(false);
-        }
-      })
-      .catch((err) => {
-        setIsLoadingScreen(false);
-        setIsLoggedIn(false);
+  const getDataProfile = async () => {
+    try {
+      const resp = await getDataPrivate("/api/v1/protected/data");
+      setIsLoadingScreen(false);
+
+      if (resp?.user_logged) {
+        setUserProfile((prev) => ({ ...prev, ...resp }));
+        setIsLoggedIn(true);
+      } else {
         jwtStorage.removeItem();
-        console.log(err);
-      });
+        setIsLoggedIn(false);
+      }
+    } catch (err) {
+      setIsLoadingScreen(false);
+      setIsLoggedIn(false);
+      jwtStorage.removeItem();
+      console.error("Error fetching profile:", err);
+    }
   };
 
   useEffect(() => {
@@ -40,7 +39,7 @@ const AuthProvider = ({ children }) => {
         const decoded = jwtDecode(token);
         setUserProfile((prev) => ({
           ...prev,
-          id_users: decoded.sub, // simpan id_users dari token
+          id_users: decoded.sub,
         }));
         getDataProfile();
       } else {
@@ -49,30 +48,40 @@ const AuthProvider = ({ children }) => {
     });
   }, []);
 
-  const login = (access_token) => {
-    jwtStorage.storeToken(access_token);
-    const decoded = jwtDecode(access_token);
-    setUserProfile({ id_users: decoded.sub }); // simpan saat login
-    getDataProfile();
-    navigate("/beranda", { replace: true });
+  const login = async (access_token) => {
+    try {
+      jwtStorage.storeToken(access_token);
+      const decoded = jwtDecode(access_token);
+      setUserProfile({ id_users: decoded.sub });
+      setIsLoggedIn(true); // Penting agar bisa akses route protected
+
+      const resp = await getDataPrivate("/api/v1/protected/data");
+      if (resp?.user_logged) {
+        setUserProfile((prev) => ({ ...prev, ...resp }));
+      }
+
+      navigate("/beranda", { replace: true });
+    } catch (err) {
+      console.error("Login process failed:", err);
+      jwtStorage.removeItem();
+      setIsLoggedIn(false);
+    }
   };
 
   const logout = () => {
     logoutAPI()
       .then((resp) => {
-        if (resp?.isLoggedOut) {
-          jwtStorage.removeItem();
-          setIsLoggedIn(false);
-          setUserProfile({});
-          navigate("/login", { replace: true });
-        }
+        jwtStorage.removeItem();
+        setIsLoggedIn(false);
+        setUserProfile({});
+        navigate("/", { replace: true }); // ⬅️ Redirect ke halaman login
       })
       .catch((err) => {
         jwtStorage.removeItem();
         setIsLoggedIn(false);
         setUserProfile({});
-        navigate("/login", { replace: true });
-        console.log(err);
+        navigate("/", { replace: true }); // ⬅️ Tetap redirect jika gagal
+        console.error("Logout error:", err);
       });
   };
 

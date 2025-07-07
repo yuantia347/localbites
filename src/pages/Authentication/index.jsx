@@ -1,16 +1,19 @@
-// src/pages/Authentication.jsx
 import { useState, useContext } from 'react';
 import './authentication.css';
 import { registerUser, sendData } from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../providers/AuthProvider';
 import { notification } from 'antd';
-import { jwtStorage } from '../../utils/jwt_storage'; // ✅ Tambahkan ini
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { jwtStorage } from '../../utils/jwt_storage';
 
 export default function Authentication() {
   const [isRegistering, setIsRegistering] = useState(true);
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [loginData, setLoginData] = useState({ username: '', password: '' });
+
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
@@ -54,12 +57,10 @@ export default function Authentication() {
 
     try {
       const response = await sendData("/api/v1/auth/login", form);
-      console.log("Login Response:", response);
-
       if (response && typeof response === "object" && "access_token" in response) {
-        login(response.access_token); // login context
-        await jwtStorage.storeToken(response.access_token); // ✅ simpan token JWT
-        localStorage.setItem("id_users", response.user_id); // simpan ID user
+        login(response.access_token);
+        await jwtStorage.storeToken(response.access_token);
+        localStorage.setItem("id_users", response.user_id);
         api.success({ message: "Login Berhasil", description: "Anda berhasil masuk." });
         navigate("/beranda");
       } else {
@@ -80,26 +81,77 @@ export default function Authentication() {
       {contextHolder}
       <div className="auth-body">
         <div className={`container ${isRegistering ? 'active' : ''}`} id="container">
+          {/* Register */}
           <div className="form-container sign-up">
             <form onSubmit={handleRegister}>
               <h1>Buat Akun</h1>
               <span>Gunakan nama pengguna dan kata sandi untuk mendaftar</span>
-              <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required />
-              <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="input-wrapper password-wrapper">
+                <input
+                  type={showRegisterPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+                <span
+                  className="eye-icon"
+                  onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                >
+                  {showRegisterPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                </span>
+              </div>
               <button type="submit">Daftar</button>
             </form>
           </div>
 
+          {/* Login */}
           <div className="form-container sign-in">
             <form onSubmit={handleLogin}>
               <h1>Masuk</h1>
               <span>Gunakan nama pengguna dan kata sandi untuk masuk</span>
-              <input type="text" name="username" placeholder="Username" value={loginData.username} onChange={handleLoginChange} required />
-              <input type="password" name="password" placeholder="Password" value={loginData.password} onChange={handleLoginChange} required />
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  value={loginData.username}
+                  onChange={handleLoginChange}
+                  required
+                />
+              </div>
+              <div className="input-wrapper password-wrapper">
+                <input
+                  type={showLoginPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  value={loginData.password}
+                  onChange={handleLoginChange}
+                  required
+                />
+                <span
+                  className="eye-icon"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                >
+                  {showLoginPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                </span>
+              </div>
               <button type="submit">Masuk</button>
             </form>
           </div>
 
+          {/* Toggle */}
           <div className="toggle-container">
             <div className="toggle">
               <div className="toggle-panel toggle-left">

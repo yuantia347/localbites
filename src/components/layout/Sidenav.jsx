@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Menu, Popconfirm } from "antd";
+import { useState, useEffect, useContext } from "react";
+import { Menu, Modal } from "antd"; // ✅ gunakan Modal, bukan Popconfirm
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   FileImageOutlined,
@@ -9,27 +9,34 @@ import {
   BookOutlined,
   HomeOutlined,
 } from "@ant-design/icons";
+import { AuthContext } from "../../providers/AuthProvider";
 import "./sidenav.css";
 
 function Sidenav() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useContext(AuthContext);
 
-  // Set default key berdasarkan URL saat ini
   const [selectedKey, setSelectedKey] = useState(location.pathname);
 
-  // Update selectedKey saat location.pathname berubah
   useEffect(() => {
     setSelectedKey(location.pathname);
   }, [location.pathname]);
 
   const handleMenuClick = (key) => {
-    if (key === "/authentication") {
-      navigate("/authentication");
-    } else {
-      setSelectedKey(key);
-      navigate(key);
-    }
+    setSelectedKey(key);
+    navigate(key);
+  };
+
+  const handleLogoutClick = () => {
+    Modal.confirm({
+      title: "Konfirmasi Logout",
+      content: "Apakah Anda yakin ingin keluar dari aplikasi?",
+      okText: "Ya, Keluar",
+      okType: "danger",
+      cancelText: "Batal",
+      onOk: logout,
+    });
   };
 
   const menuItems = [
@@ -39,18 +46,10 @@ function Sidenav() {
     { key: "/resepmasakan", icon: BookOutlined, label: "Resep Masakan" },
     { key: "/favoritsaya", icon: UnorderedListOutlined, label: "Favorit Saya" },
     {
-      key: "/authentication",
+      key: "logout", // bukan /logout, biar tidak bentrok dengan route
       icon: LogoutOutlined,
-      label: (
-        <Popconfirm
-          title="Apakah Anda yakin ingin keluar?"
-          onConfirm={() => handleMenuClick("/")}
-          okText="Ya"
-          cancelText="Batal"
-        >
-          <span>Keluar</span>
-        </Popconfirm>
-      ),
+      label: "Keluar",
+      isLogout: true,
     },
   ];
 
@@ -62,11 +61,15 @@ function Sidenav() {
       key: item.key,
       label: (
         <div
-          onClick={() =>
-            item.key !== "/authentication" && handleMenuClick(item.key)
-          }
+          onClick={() => {
+            if (item.isLogout) {
+              handleLogoutClick();
+            } else {
+              handleMenuClick(item.key);
+            }
+          }}
           className={`menu-item-wrapper ${isSelected ? "active" : ""} ${
-            item.key === "/authentication" ? "logout" : ""
+            item.isLogout ? "logout" : ""
           }`}
         >
           <div className="icon-wrapper">

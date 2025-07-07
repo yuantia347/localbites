@@ -265,4 +265,23 @@
   }
 }
 
+.input-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #999;
+}
+
 
