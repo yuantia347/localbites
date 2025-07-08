@@ -98,6 +98,19 @@ body.form-active {
   opacity: 0;
 }
 
+.resep-card1 {
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: slideInRight 0.6s ease forwards;
+  opacity: 0;
+  width: 300px;
+}
 .resep-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);

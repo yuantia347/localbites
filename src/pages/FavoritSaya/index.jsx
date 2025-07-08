@@ -207,7 +207,7 @@ function FavoritSaya() {
             <h3 style={{ marginTop: '30px' }}>Resep Masakan</h3>
             <div className="resep-grid">
               {resepList.map((resep, index) => (
-                <div key={resep.id} className="resep-card">
+                <div key={resep.id} className="resep-card1">
                   <div className="resep-detail">
                     <h3 className="resep-title">{resep.judul}</h3>
                   </div>
